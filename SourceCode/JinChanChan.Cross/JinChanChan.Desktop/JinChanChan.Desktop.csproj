@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFrameworks>net8.0-windows10.0.17763.0;net8.0-macos14.0</TargetFrameworks>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="11.2.2" />
+    <PackageReference Include="Avalonia.Desktop" Version="11.2.2" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="11.2.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\JinChanChan.Core\JinChanChan.Core.csproj" />
+    <ProjectReference Include="..\JinChanChan.Ocr\JinChanChan.Ocr.csproj" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net8.0-windows10.0.17763.0'">
+    <ProjectReference Include="..\JinChanChan.Platform.Windows\JinChanChan.Platform.Windows.csproj" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net8.0-macos14.0'">
+    <ProjectReference Include="..\JinChanChan.Platform.Mac\JinChanChan.Platform.Mac.csproj" />
+  </ItemGroup>
+</Project>

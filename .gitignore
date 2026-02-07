@@ -1,0 +1,63 @@
+# ================ #
+# DotNet .gitignore模版
+# ================ #
+
+# 构建文件
+[Dd]ebug/   
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Ww][Ii][Nn]32/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+# .NET Core
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# ASP.NET Scaffolding
+ScaffoldingReadMe.txt
+
+# NuGet Packages
+*.nupkg
+
+# NuGet Symbol Packages
+*.snupkg
+
+# Others
+~$*
+*~
+CodeCoverage/
+
+# MSBuild 二进制与结构化日志
+*.binlog
+
+# MSTest 测试结果
+[Tt]est[Rr]esult*/
+[Bb]uild[Ll]og.*
+
+# NUnit
+*.VisualState.xml
+TestResult.xml
+nunit-*.xml
+
+#由XJYdemons添加
+*.user
+.vs/
+SourceCode/JinChanChanTool/obj
+SourceCode/JinChanChanTool/bin
+.craft/
+
+SourceCode/JinChanChanTool/CLAUDE.md
+SourceCode/JinChanChanTool/.claude
+SourceCode/JinChanChanTool/.claude/settings.local.json
+CLAUDE.md
+.claude/settings.local.json
