@@ -25,7 +25,7 @@ jobs:
         run: dotnet test SourceCode/JinChanChan.Cross/JinChanChan.E2E.Tests/JinChanChan.E2E.Tests.csproj --configuration Release --verbosity minimal
 
       - name: Restore Desktop (Windows TFM)
-        run: dotnet restore SourceCode/JinChanChan.Cross/JinChanChan.Desktop/JinChanChan.Desktop.csproj -p:TargetFramework=net8.0-windows10.0.17763.0
+        run: dotnet restore SourceCode/JinChanChan.Cross/JinChanChan.Desktop/JinChanChan.Desktop.csproj -p:TargetFramework=net8.0-windows10.0.17763.0 -r win-x64
 
       - name: Publish Windows x64
         run: dotnet publish SourceCode/JinChanChan.Cross/JinChanChan.Desktop/JinChanChan.Desktop.csproj --no-restore -c Release -f net8.0-windows10.0.17763.0 -r win-x64 --self-contained false -o artifacts/win-x64
@@ -52,10 +52,10 @@ jobs:
           dotnet-version: '8.0.417'
 
       - name: Install workloads
-        run: dotnet workload install macos wasm-tools-net8
+        run: dotnet workload install macos
 
       - name: Restore Desktop (macOS TFM)
-        run: dotnet restore SourceCode/JinChanChan.Cross/JinChanChan.Desktop/JinChanChan.Desktop.csproj -p:TargetFramework=net8.0-macos14.0
+        run: dotnet restore SourceCode/JinChanChan.Cross/JinChanChan.Desktop/JinChanChan.Desktop.csproj -p:TargetFramework=net8.0-macos14.0 -r osx-arm64
 
       - name: Publish macOS arm64
         run: dotnet publish SourceCode/JinChanChan.Cross/JinChanChan.Desktop/JinChanChan.Desktop.csproj --no-restore -c Release -f net8.0-macos14.0 -r osx-arm64 --self-contained false -o artifacts/osx-arm64
