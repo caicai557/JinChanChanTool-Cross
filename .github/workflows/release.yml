@@ -60,6 +60,12 @@ jobs:
       - name: Install workloads
         run: dotnet workload install macos
 
+      - name: Restore Core
+        run: dotnet restore SourceCode/JinChanChan.Cross/JinChanChan.Core/JinChanChan.Core.csproj -p:TargetFramework=net8.0
+
+      - name: Restore Ocr
+        run: dotnet restore SourceCode/JinChanChan.Cross/JinChanChan.Ocr/JinChanChan.Ocr.csproj -p:TargetFramework=net8.0
+
       - name: Restore Desktop (macOS TFM)
         run: dotnet restore SourceCode/JinChanChan.Cross/JinChanChan.Desktop/JinChanChan.Desktop.csproj -p:TargetFramework=net8.0-macos14.0
 
