@@ -1,11 +1,18 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFrameworks>net8.0-windows10.0.17763.0;net8.0-macos14.0</TargetFrameworks>
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(OS)' == 'Windows_NT'">
+    <TargetFramework>net8.0-windows10.0.17763.0</TargetFramework>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(OS)' != 'Windows_NT'">
+    <TargetFramework>net8.0-macos14.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
@@ -19,11 +26,11 @@
     <ProjectReference Include="..\JinChanChan.Ocr\JinChanChan.Ocr.csproj" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(OS)' == 'Windows_NT' and '$(TargetFramework)' == 'net8.0-windows10.0.17763.0'">
+  <ItemGroup Condition="'$(OS)' == 'Windows_NT'">
     <ProjectReference Include="..\JinChanChan.Platform.Windows\JinChanChan.Platform.Windows.csproj" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(OS)' != 'Windows_NT' and '$(TargetFramework)' == 'net8.0-macos14.0'">
+  <ItemGroup Condition="'$(OS)' != 'Windows_NT'">
     <ProjectReference Include="..\JinChanChan.Platform.Mac\JinChanChan.Platform.Mac.csproj" />
   </ItemGroup>
 </Project>
