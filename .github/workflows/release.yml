@@ -1,0 +1,100 @@
+name: build-release
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.417'
+
+      - name: Test Core
+        run: dotnet test SourceCode/JinChanChan.Cross/JinChanChan.Core.Tests/JinChanChan.Core.Tests.csproj --configuration Release --verbosity minimal
+
+      - name: Test E2E
+        run: dotnet test SourceCode/JinChanChan.Cross/JinChanChan.E2E.Tests/JinChanChan.E2E.Tests.csproj --configuration Release --verbosity minimal
+
+      - name: Restore Core
+        run: dotnet restore SourceCode/JinChanChan.Cross/JinChanChan.Core/JinChanChan.Core.csproj -p:TargetFramework=net8.0
+
+      - name: Restore Ocr
+        run: dotnet restore SourceCode/JinChanChan.Cross/JinChanChan.Ocr/JinChanChan.Ocr.csproj -p:TargetFramework=net8.0
+
+      - name: Restore Desktop (Windows TFM)
+        run: dotnet restore SourceCode/JinChanChan.Cross/JinChanChan.Desktop/JinChanChan.Desktop.csproj -p:TargetFramework=net8.0-windows10.0.17763.0
+
+      - name: Publish Windows x64
+        run: dotnet publish SourceCode/JinChanChan.Cross/JinChanChan.Desktop/JinChanChan.Desktop.csproj -c Release -f net8.0-windows10.0.17763.0 -r win-x64 --self-contained false -o artifacts/win-x64
+
+      - name: Pack Windows artifact
+        shell: pwsh
+        run: Compress-Archive -Path artifacts/win-x64/* -DestinationPath artifacts/JinChanChan.Cross-win-x64.zip
+
+      - name: Upload Windows artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-win-x64
+          path: artifacts/JinChanChan.Cross-win-x64.zip
+
+  build-macos:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.417'
+
+      - name: Install workloads
+        run: dotnet workload install macos
+
+      - name: Restore Desktop (macOS TFM)
+        run: dotnet restore SourceCode/JinChanChan.Cross/JinChanChan.Desktop/JinChanChan.Desktop.csproj -p:TargetFramework=net8.0-macos14.0
+
+      - name: Publish macOS arm64
+        run: dotnet publish SourceCode/JinChanChan.Cross/JinChanChan.Desktop/JinChanChan.Desktop.csproj -c Release -f net8.0-macos14.0 -r osx-arm64 -p:ApplicationId=com.caicai557.jinchanchancross --self-contained false -o artifacts/osx-arm64
+
+      - name: Pack macOS artifact
+        run: |
+          cd artifacts
+          ditto -c -k --sequesterRsrc --keepParent osx-arm64 JinChanChan.Cross-osx-arm64.zip
+
+      - name: Upload macOS artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-osx-arm64
+          path: artifacts/JinChanChan.Cross-osx-arm64.zip
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/')
+    needs: [build-windows, build-macos]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Show artifacts
+        run: find artifacts -type f -maxdepth 3
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            artifacts/**/*.zip
+          generate_release_notes: true
