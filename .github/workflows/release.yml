@@ -24,14 +24,14 @@ jobs:
       - name: Test E2E
         run: dotnet test SourceCode/JinChanChan.Cross/JinChanChan.E2E.Tests/JinChanChan.E2E.Tests.csproj --configuration Release --verbosity minimal
 
+      - name: Restore Desktop (Windows RID)
+        run: dotnet restore SourceCode/JinChanChan.Cross/JinChanChan.Desktop/JinChanChan.Desktop.csproj -p:TargetFramework=net8.0-windows10.0.17763.0 -p:RuntimeIdentifier=win-x64
+
       - name: Restore Core
-        run: dotnet restore SourceCode/JinChanChan.Cross/JinChanChan.Core/JinChanChan.Core.csproj
+        run: dotnet restore SourceCode/JinChanChan.Cross/JinChanChan.Core/JinChanChan.Core.csproj -p:TargetFramework=net8.0
 
       - name: Restore Ocr
-        run: dotnet restore SourceCode/JinChanChan.Cross/JinChanChan.Ocr/JinChanChan.Ocr.csproj
-
-      - name: Restore Desktop (Windows RID)
-        run: dotnet restore SourceCode/JinChanChan.Cross/JinChanChan.Desktop/JinChanChan.Desktop.csproj -f net8.0-windows10.0.17763.0 -r win-x64
+        run: dotnet restore SourceCode/JinChanChan.Cross/JinChanChan.Ocr/JinChanChan.Ocr.csproj -p:TargetFramework=net8.0
 
       - name: Publish Windows x64
         run: dotnet publish SourceCode/JinChanChan.Cross/JinChanChan.Desktop/JinChanChan.Desktop.csproj -c Release -f net8.0-windows10.0.17763.0 -r win-x64 --no-restore --self-contained false -o artifacts/win-x64
@@ -60,14 +60,14 @@ jobs:
       - name: Install workloads
         run: dotnet workload install macos
 
+      - name: Restore Desktop (macOS RID)
+        run: dotnet restore SourceCode/JinChanChan.Cross/JinChanChan.Desktop/JinChanChan.Desktop.csproj -p:TargetFramework=net8.0-macos14.0 -p:RuntimeIdentifier=osx-arm64
+
       - name: Restore Core
-        run: dotnet restore SourceCode/JinChanChan.Cross/JinChanChan.Core/JinChanChan.Core.csproj
+        run: dotnet restore SourceCode/JinChanChan.Cross/JinChanChan.Core/JinChanChan.Core.csproj -p:TargetFramework=net8.0
 
       - name: Restore Ocr
-        run: dotnet restore SourceCode/JinChanChan.Cross/JinChanChan.Ocr/JinChanChan.Ocr.csproj
-
-      - name: Restore Desktop (macOS RID)
-        run: dotnet restore SourceCode/JinChanChan.Cross/JinChanChan.Desktop/JinChanChan.Desktop.csproj -f net8.0-macos14.0 -r osx-arm64
+        run: dotnet restore SourceCode/JinChanChan.Cross/JinChanChan.Ocr/JinChanChan.Ocr.csproj -p:TargetFramework=net8.0
 
       - name: Publish macOS arm64
         run: dotnet publish SourceCode/JinChanChan.Cross/JinChanChan.Desktop/JinChanChan.Desktop.csproj -c Release -f net8.0-macos14.0 -r osx-arm64 --no-restore -p:ApplicationId=com.caicai557.jinchanchancross -p:LinkMode=None --self-contained false -o artifacts/osx-arm64
