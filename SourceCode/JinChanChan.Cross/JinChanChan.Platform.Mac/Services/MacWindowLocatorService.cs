@@ -36,19 +36,19 @@ public sealed class MacWindowLocatorService : IWindowLocatorService
         }
 
         string script = $@"
-            tell application \"System Events\"
-                if exists process \"{EscapeAppleScript(processName)}\" then
-                    tell process \"{EscapeAppleScript(processName)}\"
+            tell application ""System Events""
+                if exists process ""{EscapeAppleScript(processName)}"" then
+                    tell process ""{EscapeAppleScript(processName)}""
                         if exists front window then
                             set p to position of front window
                             set s to size of front window
                             set t to name of front window
-                            return t & \"|\" & item 1 of p & \"|\" & item 2 of p & \"|\" & item 1 of s & \"|\" & item 2 of s
+                            return t & ""|"" & item 1 of p & ""|"" & item 2 of p & ""|"" & item 1 of s & ""|"" & item 2 of s
                         end if
                     end tell
                 end if
             end tell
-            return \"\"
+            return """"
         ";
 
         ProcessStartInfo psi = new()
