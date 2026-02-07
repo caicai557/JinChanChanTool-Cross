@@ -199,7 +199,7 @@ public sealed class MacHotkeyService : IHotkeyService
         }
     }
 
-    private int HandleCarbonHotKeyEvent(IntPtr _, IntPtr inEvent, IntPtr __)
+    private int HandleCarbonHotKeyEvent(IntPtr nextHandler, IntPtr inEvent, IntPtr userData)
     {
         int status = GetEventParameter(
             inEvent,
@@ -207,8 +207,12 @@ public sealed class MacHotkeyService : IHotkeyService
             TypeEventHotKeyId,
             IntPtr.Zero,
             (uint)Marshal.SizeOf<EventHotKeyId>(),
-            out _,
+            out uint actualSize,
             out EventHotKeyId eventId);
+
+        _ = nextHandler;
+        _ = userData;
+        _ = actualSize;
 
         if (status != NoErr || eventId.Signature != Signature)
         {
