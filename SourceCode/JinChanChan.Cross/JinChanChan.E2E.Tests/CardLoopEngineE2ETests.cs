@@ -29,6 +29,7 @@ public class CardLoopEngineE2ETests
 
         Assert.Single(plan.PurchaseSlotIndexes);
         Assert.False(plan.ShouldRefreshStore);
+        Assert.Equal("艾克", plan.RecognizedCards[0]);
 
         await engine.ExecuteActionPlanAsync(
             plan,
@@ -62,6 +63,7 @@ public class CardLoopEngineE2ETests
 
         Assert.Empty(plan.PurchaseSlotIndexes);
         Assert.False(plan.ShouldRefreshStore);
+        Assert.Empty(plan.RecognizedCards);
     }
 
     private sealed class FakeCaptureService : ICaptureService

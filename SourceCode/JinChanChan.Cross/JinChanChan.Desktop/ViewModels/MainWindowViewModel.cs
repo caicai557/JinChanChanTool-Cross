@@ -12,6 +12,8 @@ public sealed class MainWindowViewModel
 
     public string DiagnosticText { get; }
 
+    public string AdvisorText { get; }
+
     public MainWindowViewModel(
         AppSettings settings,
         MigrationReport migrationReport,
@@ -51,6 +53,14 @@ public sealed class MainWindowViewModel
         builder.AppendLine($"RefreshKey: {settings.RefreshKey}");
         builder.AppendLine($"TargetProcessName: {settings.TargetProcessName}");
         builder.AppendLine($"TargetProcessId: {settings.TargetProcessId}");
+        builder.AppendLine($"EnableLineupAdvisor: {settings.EnableLineupAdvisor}");
+        builder.AppendLine($"EnableBenchSellHint: {settings.EnableBenchSellHint}");
+        builder.AppendLine($"EnableCarouselHint: {settings.EnableCarouselHint}");
+        builder.AppendLine($"EnableAugmentHint: {settings.EnableAugmentHint}");
+        builder.AppendLine($"AdvisorTickMs: {settings.AdvisorTickMs}");
+        builder.AppendLine($"LineupDataSource: {settings.LineupDataSource}");
+        builder.AppendLine($"OverlayOpacity: {settings.OverlayOpacity:F2}");
+        builder.AppendLine($"RecommendationStabilityWindow: {settings.RecommendationStabilityWindow}");
 
         builder.AppendLine();
         builder.AppendLine("[权限状态]");
@@ -80,6 +90,11 @@ public sealed class MainWindowViewModel
         }
 
         DiagnosticText = builder.ToString();
+
+        StringBuilder advisor = new();
+        advisor.AppendLine("[智能建议]");
+        advisor.AppendLine("等待运行时循环产生建议快照...");
+        AdvisorText = advisor.ToString();
 
         _ = windowLocatorService;
         _ = permissionService;

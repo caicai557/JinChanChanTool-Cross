@@ -76,7 +76,22 @@ public sealed partial class App : Application
                 new RefreshDecisionService(),
                 input,
                 new LoopMetricsSink());
-            CrossLoopRuntime runtime = new(loopEngine, settings);
+
+            ILineupMatcherService lineupMatcher = new LineupMatcherService();
+            ILineupRecommendationService lineupRecommendation = new LineupRecommendationService(lineupMatcher);
+            StrategyAdvisorService strategyAdvisor = new(
+                lineupRecommendation,
+                new BenchAdvisorService(),
+                new CarouselAdvisorService(),
+                new EquipmentAdvisorService(),
+                new AugmentAdvisorService());
+
+            CrossLoopRuntime runtime = new(
+                loopEngine,
+                settings,
+                new GameStateReader(),
+                strategyAdvisor,
+                new NoopOverlayPresenter());
             runtime.StatusChanged += message => Trace.WriteLine(message);
 
             Dictionary<PermissionKind, bool> permissionStates = new();
@@ -117,7 +132,7 @@ public sealed partial class App : Application
                 boundWindow,
                 permissionStates);
 
-            desktop.MainWindow = new MainWindow(vm);
+            desktop.MainWindow = new MainWindow(vm, runtime);
             RegisterHotkeys(hotkey, settings, desktop, runtime, report);
             runtime.Start();
             await JsonFileStore.SaveAsync(Path.Combine(crossSettingsPath, "MigrationReport.json"), report);

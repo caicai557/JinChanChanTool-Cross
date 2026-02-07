@@ -1,4 +1,5 @@
 using JinChanChan.Core.Config;
+using JinChanChan.Core.Abstractions;
 using JinChanChan.Core.Models;
 using JinChanChan.Core.Services;
 
@@ -8,7 +9,11 @@ public sealed class CrossLoopRuntime : IDisposable
 {
     private readonly CardLoopEngine _loopEngine;
     private readonly AppSettings _settings;
+    private readonly IGameStateReader _gameStateReader;
+    private readonly StrategyAdvisorService _strategyAdvisorService;
+    private readonly IOverlayPresenter _overlayPresenter;
     private readonly object _sync = new();
+    private readonly Queue<string> _recommendationHistory = new();
     private CancellationTokenSource? _cts;
     private Task? _worker;
     private volatile bool _isRefreshInProgress;
@@ -16,13 +21,38 @@ public sealed class CrossLoopRuntime : IDisposable
     public bool AutoPickEnabled { get; private set; }
     public bool AutoRefreshEnabled { get; private set; }
     public bool HoldRollPressed { get; private set; }
+    public AdvisorSnapshot? LastAdvisorSnapshot { get; private set; }
 
     public event Action<string>? StatusChanged;
+    public event Action<AdvisorSnapshot>? AdvisorUpdated;
 
     public CrossLoopRuntime(CardLoopEngine loopEngine, AppSettings settings)
+        : this(
+            loopEngine,
+            settings,
+            new GameStateReader(),
+            new StrategyAdvisorService(
+                new LineupRecommendationService(new LineupMatcherService()),
+                new BenchAdvisorService(),
+                new CarouselAdvisorService(),
+                new EquipmentAdvisorService(),
+                new AugmentAdvisorService()),
+            new NoopOverlayPresenter())
+    {
+    }
+
+    public CrossLoopRuntime(
+        CardLoopEngine loopEngine,
+        AppSettings settings,
+        IGameStateReader gameStateReader,
+        StrategyAdvisorService strategyAdvisorService,
+        IOverlayPresenter overlayPresenter)
     {
         _loopEngine = loopEngine;
         _settings = settings;
+        _gameStateReader = gameStateReader;
+        _strategyAdvisorService = strategyAdvisorService;
+        _overlayPresenter = overlayPresenter;
         AutoPickEnabled = settings.EnableAutoPick;
         AutoRefreshEnabled = settings.EnableAutoRefresh;
     }
@@ -88,10 +118,14 @@ public sealed class CrossLoopRuntime : IDisposable
             {
             }
         }
+
+        _overlayPresenter.Clear();
     }
 
     private async Task RunLoopAsync(CancellationToken cancellationToken)
     {
+        int delayMs = _settings.EnableLineupAdvisor ? Math.Max(50, _settings.AdvisorTickMs) : 80;
+
         while (!cancellationToken.IsCancellationRequested)
         {
             try
@@ -136,6 +170,30 @@ public sealed class CrossLoopRuntime : IDisposable
                         _settings.RefreshKey,
                         cancellationToken);
                 }
+
+                if (_settings.EnableLineupAdvisor)
+                {
+                    LiveGameState gameState = _gameStateReader.Read(
+                        plan.RecognizedCards,
+                        _settings.PreferredTargets,
+                        AutoPickEnabled,
+                        AutoRefreshEnabled || HoldRollPressed,
+                        DateTimeOffset.UtcNow);
+
+                    AdvisorSnapshot snapshot = _strategyAdvisorService.BuildSnapshot(
+                        gameState,
+                        _settings.EnableBenchSellHint,
+                        _settings.EnableCarouselHint,
+                        _settings.EnableAugmentHint,
+                        cancellationToken: cancellationToken);
+
+                    if (ShouldPublishRecommendation(snapshot.Recommendation?.LineupName))
+                    {
+                        LastAdvisorSnapshot = snapshot;
+                        _overlayPresenter.Present(snapshot);
+                        AdvisorUpdated?.Invoke(snapshot);
+                    }
+                }
             }
             catch (OperationCanceledException)
             {
@@ -150,9 +208,42 @@ public sealed class CrossLoopRuntime : IDisposable
                 _isRefreshInProgress = false;
             }
 
-            await Task.Delay(80, cancellationToken);
+            await Task.Delay(delayMs, cancellationToken);
         }
 
         StatusChanged?.Invoke("运行时循环已停止。");
+    }
+
+    private bool ShouldPublishRecommendation(string? recommendationName)
+    {
+        if (string.IsNullOrWhiteSpace(recommendationName))
+        {
+            return true;
+        }
+
+        int window = Math.Max(1, _settings.RecommendationStabilityWindow);
+        if (window <= 1)
+        {
+            return true;
+        }
+
+        _recommendationHistory.Enqueue(recommendationName);
+        while (_recommendationHistory.Count > window)
+        {
+            _recommendationHistory.Dequeue();
+        }
+
+        if (_recommendationHistory.Count < window)
+        {
+            return true;
+        }
+
+        string majority = _recommendationHistory
+            .GroupBy(x => x, StringComparer.Ordinal)
+            .OrderByDescending(g => g.Count())
+            .ThenBy(g => g.Key, StringComparer.Ordinal)
+            .First().Key;
+
+        return string.Equals(majority, recommendationName, StringComparison.Ordinal);
     }
 }

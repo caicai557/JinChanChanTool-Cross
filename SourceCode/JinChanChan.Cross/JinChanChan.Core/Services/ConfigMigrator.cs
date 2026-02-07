@@ -83,6 +83,14 @@ public sealed class ConfigMigrator : IConfigMigrator
         TryMapBool(root, "UseNewLoopEngine", v => settings.UseNewLoopEngine = v, report, "UseNewLoopEngine -> UseNewLoopEngine");
         TryMapInt(root, "CpuOcrConsumerCount", v => settings.CpuOcrConsumerCount = Math.Max(1, v), report, "CpuOcrConsumerCount -> CpuOcrConsumerCount");
         TryMapBool(root, "OcrWarmupEnabled", v => settings.OcrWarmupEnabled = v, report, "OcrWarmupEnabled -> OcrWarmupEnabled");
+        TryMapBool(root, "EnableLineupAdvisor", v => settings.EnableLineupAdvisor = v, report, "EnableLineupAdvisor -> EnableLineupAdvisor");
+        TryMapBool(root, "EnableBenchSellHint", v => settings.EnableBenchSellHint = v, report, "EnableBenchSellHint -> EnableBenchSellHint");
+        TryMapBool(root, "EnableCarouselHint", v => settings.EnableCarouselHint = v, report, "EnableCarouselHint -> EnableCarouselHint");
+        TryMapBool(root, "EnableAugmentHint", v => settings.EnableAugmentHint = v, report, "EnableAugmentHint -> EnableAugmentHint");
+        TryMapInt(root, "AdvisorTickMs", v => settings.AdvisorTickMs = Math.Max(50, v), report, "AdvisorTickMs -> AdvisorTickMs");
+        TryMapString(root, "LineupDataSource", v => settings.LineupDataSource = v, report, "LineupDataSource -> LineupDataSource");
+        TryMapDouble(root, "OverlayOpacity", v => settings.OverlayOpacity = Math.Clamp(v, 0.1, 1), report, "OverlayOpacity -> OverlayOpacity");
+        TryMapInt(root, "RecommendationStabilityWindow", v => settings.RecommendationStabilityWindow = Math.Max(1, v), report, "RecommendationStabilityWindow -> RecommendationStabilityWindow");
         TryMapString(root, "RefreshStoreKey", v => settings.RefreshKey = v, report, "RefreshStoreKey -> RefreshKey");
         TryMapString(root, "TargetProcessName", v => settings.TargetProcessName = v, report, "TargetProcessName -> TargetProcessName");
         TryMapInt(root, "TargetProcessId", v => settings.TargetProcessId = Math.Max(0, v), report, "TargetProcessId -> TargetProcessId");
@@ -97,6 +105,7 @@ public sealed class ConfigMigrator : IConfigMigrator
             "HotKey1","HotKey2","HotKey3","HotKey4","HotKey5",
             "IsUseDynamicCoordinates","IsKeyboardHeroPurchase","IsMouseHeroPurchase","IsKeyboardRefreshStore","IsMouseRefreshStore",
             "IsStrictMatching","EnablePerfMetrics","UseNewLoopEngine","CpuOcrConsumerCount","OcrWarmupEnabled",
+            "EnableLineupAdvisor","EnableBenchSellHint","EnableCarouselHint","EnableAugmentHint","AdvisorTickMs","LineupDataSource","OverlayOpacity","RecommendationStabilityWindow",
             "HeroPurchaseKey1","HeroPurchaseKey2","HeroPurchaseKey3","HeroPurchaseKey4","HeroPurchaseKey5",
             "RefreshStoreKey","TargetProcessName","TargetProcessId",
             "HeroNameScreenshotRectangle_1","HeroNameScreenshotRectangle_2","HeroNameScreenshotRectangle_3","HeroNameScreenshotRectangle_4","HeroNameScreenshotRectangle_5",
@@ -150,6 +159,15 @@ public sealed class ConfigMigrator : IConfigMigrator
         if (root.TryGetProperty(property, out JsonElement value) && value.ValueKind == JsonValueKind.Number && value.TryGetInt32(out int intValue))
         {
             apply(intValue);
+            report.AppliedMappings.Add(mappingName);
+        }
+    }
+
+    private static void TryMapDouble(JsonElement root, string property, Action<double> apply, MigrationReport report, string mappingName)
+    {
+        if (root.TryGetProperty(property, out JsonElement value) && value.ValueKind == JsonValueKind.Number && value.TryGetDouble(out double doubleValue))
+        {
+            apply(doubleValue);
             report.AppliedMappings.Add(mappingName);
         }
     }

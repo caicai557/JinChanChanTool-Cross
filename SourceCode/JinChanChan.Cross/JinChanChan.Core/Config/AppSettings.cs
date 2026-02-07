@@ -30,6 +30,22 @@ public sealed class AppSettings
 
     public bool StrictMatching { get; set; }
 
+    public bool EnableLineupAdvisor { get; set; } = true;
+
+    public bool EnableBenchSellHint { get; set; } = true;
+
+    public bool EnableCarouselHint { get; set; } = true;
+
+    public bool EnableAugmentHint { get; set; } = true;
+
+    public int AdvisorTickMs { get; set; } = 200;
+
+    public string LineupDataSource { get; set; } = "local";
+
+    public double OverlayOpacity { get; set; } = 0.85;
+
+    public int RecommendationStabilityWindow { get; set; } = 3;
+
     public List<string> PurchaseKeys { get; set; } = ["Q", "W", "E", "R", "T"];
 
     public string RefreshKey { get; set; } = "D";

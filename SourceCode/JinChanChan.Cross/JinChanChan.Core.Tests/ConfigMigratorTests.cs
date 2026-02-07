@@ -56,6 +56,14 @@ public class ConfigMigratorTests
               "TargetProcessId": 1234,
               "IsStrictMatching": true,
               "UseNewLoopEngine": false,
+              "EnableLineupAdvisor": false,
+              "EnableBenchSellHint": false,
+              "EnableCarouselHint": false,
+              "EnableAugmentHint": false,
+              "AdvisorTickMs": 120,
+              "LineupDataSource": "local",
+              "OverlayOpacity": 0.7,
+              "RecommendationStabilityWindow": 4,
               "RefreshStoreKey": "D",
               "HeroPurchaseKey1": "Q",
               "HeroPurchaseKey2": "W",
@@ -76,6 +84,14 @@ public class ConfigMigratorTests
             Assert.Equal(1234, settings.TargetProcessId);
             Assert.True(settings.StrictMatching);
             Assert.False(settings.UseNewLoopEngine);
+            Assert.False(settings.EnableLineupAdvisor);
+            Assert.False(settings.EnableBenchSellHint);
+            Assert.False(settings.EnableCarouselHint);
+            Assert.False(settings.EnableAugmentHint);
+            Assert.Equal(120, settings.AdvisorTickMs);
+            Assert.Equal("local", settings.LineupDataSource);
+            Assert.Equal(0.7, settings.OverlayOpacity, 2);
+            Assert.Equal(4, settings.RecommendationStabilityWindow);
             Assert.Equal("D", settings.RefreshKey);
             Assert.Equal(["Q", "W", "E", "R", "T"], settings.PurchaseKeys);
         }

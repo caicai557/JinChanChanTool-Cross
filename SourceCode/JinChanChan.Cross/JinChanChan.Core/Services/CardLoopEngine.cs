@@ -57,7 +57,9 @@ public sealed class CardLoopEngine
             {
                 PurchaseSlotIndexes = [],
                 ShouldRefreshStore = false,
-                Reason = "坐标未配置，跳过本轮。"
+                Reason = "坐标未配置，跳过本轮。",
+                RecognizedCards = Array.Empty<string>(),
+                MatchedSlots = Array.Empty<bool>()
             };
         }
 
@@ -102,7 +104,9 @@ public sealed class CardLoopEngine
         {
             PurchaseSlotIndexes = slots,
             ShouldRefreshStore = shouldRefresh,
-            Reason = shouldRefresh ? "无目标卡，执行刷新" : "本轮不刷新"
+            Reason = shouldRefresh ? "无目标卡，执行刷新" : "本轮不刷新",
+            RecognizedCards = corrected,
+            MatchedSlots = targetFlags
         };
     }
 

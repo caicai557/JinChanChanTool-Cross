@@ -68,7 +68,7 @@ public sealed class WindowsWindowLocatorService : IWindowLocatorService
                 return true;
             }
 
-            _ = GetWindowThreadProcessId(hWnd, out uint pid);
+            GetWindowThreadProcessId(hWnd, out uint pid);
             string processName = string.Empty;
             try
             {
